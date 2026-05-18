@@ -14,7 +14,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryAuthFailed, ConfigEntryNotReady
 
 from .api import AuthError
-from .const import DOMAIN, DEFAULT_SCAN_INTERVAL_MINUTES
+from .const import DOMAIN, CONF_UNIT_SYSTEM, DEFAULT_SCAN_INTERVAL_MINUTES, DEFAULT_UNIT_SYSTEM
 from .coordinator import RenphoHealthCoordinator
 
 _LOGGER = logging.getLogger(__name__)
@@ -27,12 +27,17 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     email = entry.data[CONF_EMAIL]
     password = entry.data[CONF_PASSWORD]
     scan_interval = entry.data.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL_MINUTES)
+    unit_system = entry.options.get(
+        CONF_UNIT_SYSTEM,
+        entry.data.get(CONF_UNIT_SYSTEM, DEFAULT_UNIT_SYSTEM),
+    )
 
     coordinator = RenphoHealthCoordinator(
         hass,
         email=email,
         password=password,
         scan_interval_minutes=scan_interval,
+        unit_system=unit_system,
     )
 
     # Fetch initial data

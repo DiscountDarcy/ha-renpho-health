@@ -23,7 +23,13 @@ from .api import (
     RenphoHealthAPIError,
     RateLimitError,
 )
-from .const import DOMAIN, DEFAULT_SCAN_INTERVAL_MINUTES, MIN_SCAN_INTERVAL_MINUTES
+from .const import (
+    DOMAIN,
+    DEFAULT_SCAN_INTERVAL_MINUTES,
+    MIN_SCAN_INTERVAL_MINUTES,
+    DEFAULT_UNIT_SYSTEM,
+    UNIT_IMPERIAL,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -37,11 +43,13 @@ class RenphoHealthCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         email: str,
         password: str,
         scan_interval_minutes: int = DEFAULT_SCAN_INTERVAL_MINUTES,
+        unit_system: str = DEFAULT_UNIT_SYSTEM,
     ) -> None:
         """Initialize the coordinator."""
         self._email = email
         self._password = password
         self._scan_interval_minutes = max(scan_interval_minutes, MIN_SCAN_INTERVAL_MINUTES)
+        self.unit_system = unit_system
 
         super().__init__(
             hass,

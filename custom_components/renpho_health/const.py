@@ -9,9 +9,21 @@ PLATFORMS: Final = ["sensor"]
 CONF_EMAIL: Final = "email"
 CONF_PASSWORD: Final = "password"
 CONF_SCAN_INTERVAL: Final = "scan_interval"
+CONF_UNIT_SYSTEM: Final = "unit_system"
 
 DEFAULT_SCAN_INTERVAL_MINUTES: Final = 60
 MIN_SCAN_INTERVAL_MINUTES: Final = 5
+
+# Unit system choices
+UNIT_IMPERIAL: Final = "imperial"
+UNIT_METRIC: Final = "metric"
+DEFAULT_UNIT_SYSTEM: Final = UNIT_IMPERIAL
+
+# Conversion: 1 kg = 2.20462262185 lbs
+KG_TO_LB: Final = 2.20462262185
+
+# Metric keys that represent mass (kg) — these get converted to lbs in Imperial
+WEIGHT_KEYS: Final = {"weight", "sinew", "fatFreeWeight"}
 
 # Metric definitions: (key, name, unit, device_class, state_class, icon)
 # Keys match the renpho-api response fields

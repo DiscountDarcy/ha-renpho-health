@@ -5,6 +5,7 @@
         "data": {
           "email": "Email",
           "password": "Password",
+          "unit_system": "Unit system",
           "scan_interval": "Update interval (minutes)"
         },
         "description": "Enter your Renpho Health app credentials.\n\nYour password is used to authenticate with the Renpho cloud API and is stored locally on your Home Assistant instance.",
@@ -24,9 +25,10 @@
     "step": {
       "init": {
         "data": {
+          "unit_system": "Unit system",
           "scan_interval": "Update interval (minutes)"
         },
-        "description": "Configure how often to poll the Renpho Health API."
+        "description": "Configure Renpho Health options."
       }
     }
   }

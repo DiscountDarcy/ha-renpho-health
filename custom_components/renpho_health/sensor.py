@@ -22,7 +22,7 @@ from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import DOMAIN, METRICS
+from .const import DOMAIN, METRICS, UNIT_IMPERIAL, KG_TO_LB, WEIGHT_KEYS
 from .coordinator import RenphoHealthCoordinator
 
 _LOGGER = logging.getLogger(__name__)
@@ -30,6 +30,7 @@ _LOGGER = logging.getLogger(__name__)
 # Map metric unit strings to HA unit constants
 UNIT_MAP: dict[str, str] = {
     "kg": UnitOfMass.KILOGRAMS,
+    "lb": UnitOfMass.POUNDS,
     "%": PERCENTAGE,
     "kg/m²": "kg/m²",
     "kcal/day": "kcal/day",
@@ -196,11 +197,14 @@ class RenphoHealthSensor(CoordinatorEntity[RenphoHealthCoordinator], SensorEntit
 
         self._attr_icon = icon
 
-        # Unit of measurement
-        if metric_unit and metric_unit in UNIT_MAP:
-            self._attr_native_unit_of_measurement = UNIT_MAP[metric_unit]
+        # Unit of measurement — adjust for Imperial vs Metric
+        display_unit = metric_unit
+        if coordinator.unit_system == UNIT_IMPERIAL and metric_key in WEIGHT_KEYS:
+            display_unit = "lb"
+        if display_unit and display_unit in UNIT_MAP:
+            self._attr_native_unit_of_measurement = UNIT_MAP.get(display_unit, display_unit)
         else:
-            self._attr_native_unit_of_measurement = metric_unit
+            self._attr_native_unit_of_measurement = display_unit
 
         # Device class
         if device_class_str:
@@ -259,7 +263,13 @@ class RenphoHealthSensor(CoordinatorEntity[RenphoHealthCoordinator], SensorEntit
         """Return the current value of the sensor."""
         measurement = self._find_measurement()
         if measurement:
-            return measurement.get(self._metric_key)
+            val = measurement.get(self._metric_key)
+            if val is not None and self.coordinator.unit_system == UNIT_IMPERIAL and self._metric_key in WEIGHT_KEYS:
+                try:
+                    val = round(float(val) * KG_TO_LB, 1)
+                except (ValueError, TypeError):
+                    pass
+            return val
         return None
 
     @property

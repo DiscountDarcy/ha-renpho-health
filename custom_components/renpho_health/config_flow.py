@@ -14,7 +14,15 @@ from homeassistant.data_entry_flow import FlowResult
 from homeassistant.helpers import config_validation as cv
 
 from .api import validate_credentials, AuthError, RenphoHealthAPIError
-from .const import DOMAIN, DEFAULT_SCAN_INTERVAL_MINUTES, MIN_SCAN_INTERVAL_MINUTES
+from .const import (
+    DOMAIN,
+    CONF_UNIT_SYSTEM,
+    DEFAULT_SCAN_INTERVAL_MINUTES,
+    DEFAULT_UNIT_SYSTEM,
+    MIN_SCAN_INTERVAL_MINUTES,
+    UNIT_IMPERIAL,
+    UNIT_METRIC,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -22,6 +30,9 @@ STEP_USER_DATA_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_EMAIL): str,
         vol.Required(CONF_PASSWORD): str,
+        vol.Optional(
+            CONF_UNIT_SYSTEM, default=DEFAULT_UNIT_SYSTEM
+        ): vol.In({UNIT_IMPERIAL: "Imperial (lbs)", UNIT_METRIC: "Metric (kg)"}),
         vol.Optional(
             CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL_MINUTES
         ): vol.All(vol.Coerce(int), vol.Range(min=MIN_SCAN_INTERVAL_MINUTES, max=1440)),
@@ -37,13 +48,14 @@ class RenphoHealthConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
     ) -> FlowResult:
-        """Handle the initial step (email + password + scan interval)."""
+        """Handle the initial step."""
         errors: dict[str, str] = {}
 
         if user_input is not None:
             email = user_input[CONF_EMAIL].strip()
             password = user_input[CONF_PASSWORD]
             scan_interval = user_input.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL_MINUTES)
+            unit_system = user_input.get(CONF_UNIT_SYSTEM, DEFAULT_UNIT_SYSTEM)
 
             # Validate credentials
             try:
@@ -59,7 +71,6 @@ class RenphoHealthConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 errors["base"] = "unknown"
 
             if not errors:
-                # Create unique ID from email
                 await self.async_set_unique_id(f"renpho_{email}")
                 self._abort_if_unique_id_configured()
 
@@ -69,6 +80,7 @@ class RenphoHealthConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         CONF_EMAIL: email,
                         CONF_PASSWORD: password,
                         CONF_SCAN_INTERVAL: scan_interval,
+                        CONF_UNIT_SYSTEM: unit_system,
                     },
                 )
 
@@ -88,7 +100,7 @@ class RenphoHealthConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
 
 class RenphoHealthOptionsFlow(config_entries.OptionsFlow):
-    """Handle options for Renpho Health (e.g., changing scan interval)."""
+    """Handle options for Renpho Health."""
 
     def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
         """Initialize options flow."""
@@ -105,9 +117,17 @@ class RenphoHealthOptionsFlow(config_entries.OptionsFlow):
             CONF_SCAN_INTERVAL,
             self.config_entry.data.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL_MINUTES),
         )
+        current_unit = self.config_entry.options.get(
+            CONF_UNIT_SYSTEM,
+            self.config_entry.data.get(CONF_UNIT_SYSTEM, DEFAULT_UNIT_SYSTEM),
+        )
 
         options_schema = vol.Schema(
             {
+                vol.Optional(
+                    CONF_UNIT_SYSTEM,
+                    default=current_unit,
+                ): vol.In({UNIT_IMPERIAL: "Imperial (lbs)", UNIT_METRIC: "Metric (kg)"}),
                 vol.Optional(
                     CONF_SCAN_INTERVAL,
                     default=current_interval,
