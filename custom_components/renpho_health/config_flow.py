@@ -9,9 +9,8 @@ import voluptuous as vol
 
 from homeassistant import config_entries
 from homeassistant.const import CONF_EMAIL, CONF_PASSWORD, CONF_SCAN_INTERVAL
-from homeassistant.core import callback
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.data_entry_flow import FlowResult
-from homeassistant.helpers import config_validation as cv
 
 from .api import validate_credentials, AuthError, RenphoHealthAPIError
 from .const import (
@@ -66,6 +65,32 @@ class RenphoHealthConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Handle a config flow for Renpho Health."""
 
     VERSION = 2
+
+    async def async_migrate_entry(
+        self, hass: HomeAssistant, config_entry: config_entries.ConfigEntry
+    ) -> bool:
+        """Migrate old config entries to the current version."""
+        _LOGGER.debug(
+            "Migrating Renpho Health config entry from version %s",
+            config_entry.version,
+        )
+
+        if config_entry.version == 1:
+            # v1 → v2: Added unit_system option
+            new_data = {**config_entry.data}
+            if CONF_UNIT_SYSTEM not in new_data:
+                new_data[CONF_UNIT_SYSTEM] = DEFAULT_UNIT_SYSTEM
+            hass.config_entries.async_update_entry(
+                config_entry,
+                data=new_data,
+                version=2,
+            )
+            _LOGGER.info(
+                "Migrated Renpho Health config entry to version 2 (added unit_system=%s)",
+                DEFAULT_UNIT_SYSTEM,
+            )
+
+        return True
 
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
