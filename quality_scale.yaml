@@ -23,8 +23,8 @@ rules:
     status: done
     comment: RenphoHealthConfigFlow with UI setup, no YAML required
   data-description:
-    status: exempt
-    comment: Uses voluptuous Schema directly with descriptive labels in strings.json. data_description API requires HA >= 2024.6; floor is 2024.1.0. To revisit when floor bumps.
+    status: done
+    comment: STEP_USER_DATA_DESCRIPTION dict with per-field help text. Passed to async_show_form in both config and options flows. Requires HA 2024.6+.
   config-entry-data-options:
     status: done
     comment: Credentials in ConfigEntry.data, unit/interval in ConfigEntry.options

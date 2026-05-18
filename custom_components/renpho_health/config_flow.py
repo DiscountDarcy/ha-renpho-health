@@ -26,6 +26,28 @@ from .const import (
 
 _LOGGER = logging.getLogger(__name__)
 
+# Field descriptions shown in the Home Assistant UI during setup and options
+STEP_USER_DATA_DESCRIPTION = {
+    CONF_EMAIL: (
+        "The email address you use to log into the Renpho Health app "
+        "(the new blue-icon app, not the old orange-icon 'Renpho' app)."
+    ),
+    CONF_PASSWORD: (
+        "Your Renpho Health app password. Stored locally on your "
+        "Home Assistant instance and used only to authenticate with "
+        "the Renpho cloud API."
+    ),
+    CONF_UNIT_SYSTEM: (
+        "Choose whether weight sensors display in pounds (lbs) "
+        "or kilograms (kg). Non-weight metrics are unaffected."
+    ),
+    CONF_SCAN_INTERVAL: (
+        "How often Home Assistant polls the Renpho cloud for new "
+        "measurements. Shorter intervals show fresher data but "
+        "may hit rate limits."
+    ),
+}
+
 STEP_USER_DATA_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_EMAIL): str,
@@ -88,6 +110,7 @@ class RenphoHealthConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             step_id="user",
             data_schema=STEP_USER_DATA_SCHEMA,
             errors=errors,
+            data_description=STEP_USER_DATA_DESCRIPTION,
         )
 
     @staticmethod
@@ -139,4 +162,8 @@ class RenphoHealthOptionsFlow(config_entries.OptionsFlow):
         return self.async_show_form(
             step_id="init",
             data_schema=options_schema,
+            data_description={
+                CONF_UNIT_SYSTEM: STEP_USER_DATA_DESCRIPTION[CONF_UNIT_SYSTEM],
+                CONF_SCAN_INTERVAL: STEP_USER_DATA_DESCRIPTION[CONF_SCAN_INTERVAL],
+            },
         )
