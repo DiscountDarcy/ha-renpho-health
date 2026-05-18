@@ -16,7 +16,6 @@ from homeassistant.exceptions import ConfigEntryAuthFailed, ConfigEntryNotReady
 
 from .api import AuthError
 from .const import (
-    DOMAIN,
     CONF_UNIT_SYSTEM,
     DEFAULT_SCAN_INTERVAL_MINUTES,
     DEFAULT_UNIT_SYSTEM,
@@ -55,7 +54,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     except Exception as exc:
         raise ConfigEntryNotReady(f"Failed to connect: {exc}") from exc
 
-    hass.data.setdefault(DOMAIN, {})[entry.entry_id] = coordinator
+    entry.runtime_data = coordinator
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
@@ -67,10 +66,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload a config entry."""
-    unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
-    if unload_ok:
-        hass.data[DOMAIN].pop(entry.entry_id, None)
-    return unload_ok
+    return await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
 
 
 async def async_reload_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
@@ -81,7 +77,7 @@ async def async_reload_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
 
 async def async_update_options(hass: HomeAssistant, entry: ConfigEntry) -> None:
     """Handle options update — update coordinator unit and trigger refresh."""
-    coordinator: RenphoHealthCoordinator | None = hass.data.get(DOMAIN, {}).get(entry.entry_id)
+    coordinator: RenphoHealthCoordinator | None = entry.runtime_data
     if coordinator is not None:
         new_unit = entry.options.get(
             CONF_UNIT_SYSTEM,

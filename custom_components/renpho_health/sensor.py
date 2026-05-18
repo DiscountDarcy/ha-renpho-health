@@ -51,7 +51,7 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up Renpho Health sensors from a config entry."""
-    coordinator: RenphoHealthCoordinator = hass.data[DOMAIN][entry.entry_id]
+    coordinator: RenphoHealthCoordinator = entry.runtime_data
 
     # Wait for first data fetch so we know what scales and users exist
     await coordinator.async_config_entry_first_refresh()
@@ -190,16 +190,23 @@ class RenphoHealthSensor(CoordinatorEntity[RenphoHealthCoordinator], SensorEntit
         if user_id:
             self._attr_unique_id = f"v2_{table_name}_{user_id}_{metric_key}"
             self.entity_id = f"sensor.renpho_{safe_scale}_{safe_user}_{safe_key}"
-            self._attr_name = f"Renpho {scale_name} {user_name} {metric_name}"
         else:
             self._attr_unique_id = f"v2_{table_name}_{metric_key}"
             self.entity_id = f"sensor.renpho_{safe_scale}_{safe_key}"
-            self._attr_name = f"Renpho {scale_name} {metric_name}"
 
+        self._attr_has_entity_name = True
         self._attr_icon = icon
 
         # Store the base metric unit — dynamic property below handles Imperial conversion
         self._base_metric_unit = metric_unit
+
+        # Entity name — HA prepends device name ("Bathroom Scale") for friendly display
+        # Multi-user: "Sam Weight" → "Bathroom Scale Sam Weight"
+        # Single-user: "Weight" → "Bathroom Scale Weight"
+        if user_name:
+            self._attr_name = f"{user_name} {metric_name}"
+        else:
+            self._attr_name = metric_name
 
         # Device class
         if device_class_str:

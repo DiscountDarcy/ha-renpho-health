@@ -50,11 +50,11 @@ rules:
     status: done
     comment: v2_ prefixed unique IDs using table_name + user_id + metric_key. Config flow uses email-based unique entry IDs.
   has-entity-name:
-    status: todo
-    comment: Entities set _attr_name explicitly (includes user/scale context). Needs investigation whether has_entity_name = True can be safely adopted without breaking multi-user naming. Low risk deferral.
+    status: done
+    comment: has_entity_name = True set on all RenphoHealthSensor entities. Entity names simplified — HA prepends device name, so "Bathroom Scale Sam Weight" instead of "Renpho Bathroom Scale Sam Weight".
   runtime-data:
-    status: todo
-    comment: Uses hass.data[DOMAIN][entry.entry_id] pattern. ConfigEntry.runtime_data is cleaner but requires HA >= 2024.4. Floor is 2024.1.0. Deferred to next floor bump.
+    status: done
+    comment: coordinator stored on entry.runtime_data (HA 2024.5+). Floor bumped to 2024.5.0.
   test-before-configure:
     status: done
     comment: validate_credentials() called in config flow before entry creation
