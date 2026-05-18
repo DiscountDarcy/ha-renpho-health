@@ -72,6 +72,56 @@ Then restart Home Assistant.
 - Home Assistant 2024.1 or newer
 - Renpho Health app account (the **new** app, not the old "Renpho" app)
 
+## Troubleshooting
+
+> **Important:** This integration polls the **Renpho cloud API** (`cloud.renpho.com`). It does not communicate with your scale directly over Bluetooth or Wi-Fi. Your scale must be syncing to the Renpho Health app for data to appear in Home Assistant.
+
+### No entities appearing
+
+1. Open the Renpho Health app on your phone and confirm your latest weigh-in is visible
+2. Check that the scale successfully synced (look for the measurement in the app's history)
+3. In Home Assistant, go to **Settings → Devices & Services → Renpho Health** and verify the integration shows "Connected"
+4. The integration polls every 60 minutes by default — new measurements won't appear instantly
+
+### "Invalid credentials" error
+
+- Use the same email and password as the **Renpho Health** app (the new blue-icon app, not the old "Renpho" app)
+- If you recently changed your Renpho password, re-enter it in the integration's options
+- Accounts created before 2024 may need to migrate to the Health app first
+
+### "Failed to connect" error
+
+- Your Home Assistant instance needs internet access to reach `cloud.renpho.com`
+- Check your HA host can resolve DNS and make outbound HTTPS connections
+- Temporary Renpho cloud outages do happen — the integration will retry on the next poll interval
+
+### Rate limiting
+
+If you set the polling interval very low (e.g., 5 minutes) and have multiple scales or users,
+you may hit Renpho's API rate limits. Symptoms include "Rate limited" warnings in the HA logs.
+Increase the polling interval to 30+ minutes if this occurs.
+
+### Data looks wrong?
+
+- Verify the **Unit system** in the integration options matches your preference (Imperial/Metric)
+- Changing the unit system updates sensor values immediately
+- For multi-user households, make sure you're looking at the correct user's sensor entities
+
+### Still stuck?
+
+[Open an issue](https://github.com/DiscountDarcy/ha-renpho-health/issues) on GitHub. Include:
+- Your Home Assistant version
+- The integration version (visible in HACS or the manifest)
+- Any relevant log entries from **Settings → System → Logs** (search for "renpho")
+
+## Removal
+
+1. In Home Assistant, go to **Settings → Devices & Services**
+2. Find the **Renpho Health** integration card
+3. Click **⋯** → **Delete**
+4. If installed via HACS, go to **HACS → Integrations → Renpho Health → ⋯ → Remove**
+5. Restart Home Assistant to fully clear the integration
+
 ## Credits
 
 - Based on reverse-engineering by [forkerer/RenphoGarminSync-CLI](https://github.com/forkerer/RenphoGarminSync-CLI)

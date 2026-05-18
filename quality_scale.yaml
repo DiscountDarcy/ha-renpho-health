@@ -1,0 +1,174 @@
+# Integration Quality Scale — Renpho Health
+# Tracks progress toward Bronze, Silver, Gold, Platinum tiers
+# See: https://developers.home-assistant.io/docs/core/integration-quality-scale/
+
+rules:
+  # === BRONZE (Baseline) ===
+  action-setup:
+    status: exempt
+    comment: No services defined — sensor-only integration
+  appropriate-polling:
+    status: done
+    comment: Configurable 5min-24hr, default 60min per Renpho's rate limit guidance
+  brands:
+    status: done
+    comment: brand/icon.png (512x512) + brand/logo.png
+  common-modules:
+    status: done
+    comment: const.py, api.py, coordinator.py, sensor.py, config_flow.py
+  config-flow-test-coverage:
+    status: done
+    comment: tests/test_config_flow.py — 8 tests covering schema validation, errors, options
+  config-flow:
+    status: done
+    comment: RenphoHealthConfigFlow with UI setup, no YAML required
+  data-description:
+    status: exempt
+    comment: Uses voluptuous Schema directly with descriptive labels in strings.json. data_description API requires HA >= 2024.6; floor is 2024.1.0. To revisit when floor bumps.
+  config-entry-data-options:
+    status: done
+    comment: Credentials in ConfigEntry.data, unit/interval in ConfigEntry.options
+  dependency-transparency:
+    status: done
+    comment: manifest.json declares renpho-api>=0.1.0
+  docs-actions:
+    status: exempt
+    comment: No service actions defined
+  docs-high-level-description:
+    status: done
+    comment: README.md + info.md/en.md describe the integration, features, and scope
+  docs-installation-instructions:
+    status: done
+    comment: README has HACS (1-click badge + manual) and manual git clone instructions
+  docs-removal-instructions:
+    status: done
+    comment: README has step-by-step removal for both HACS and manual installs
+  entity-event-setup:
+    status: exempt
+    comment: CoordinatorEntity pattern — updates handled via _handle_coordinator_update, no event subscriptions needed
+  entity-unique-id:
+    status: done
+    comment: v2_ prefixed unique IDs using table_name + user_id + metric_key. Config flow uses email-based unique entry IDs.
+  has-entity-name:
+    status: todo
+    comment: Entities set _attr_name explicitly (includes user/scale context). Needs investigation whether has_entity_name = True can be safely adopted without breaking multi-user naming. Low risk deferral.
+  runtime-data:
+    status: todo
+    comment: Uses hass.data[DOMAIN][entry.entry_id] pattern. ConfigEntry.runtime_data is cleaner but requires HA >= 2024.4. Floor is 2024.1.0. Deferred to next floor bump.
+  test-before-configure:
+    status: done
+    comment: validate_credentials() called in config flow before entry creation
+  test-before-setup:
+    status: done
+    comment: async_config_entry_first_refresh() called in async_setup_entry
+  unique-config-entry:
+    status: done
+    comment: async_set_unique_id + _abort_if_unique_id_configured per email
+
+  # === SILVER ===
+  action-exceptions:
+    status: done
+    comment: API layer raises typed exceptions (AuthError, RateLimitError, RenphoHealthAPIError)
+  config-entry-unloading:
+    status: done
+    comment: async_unload_entry unloads platforms and cleans hass.data
+  docs-configuration-parameters:
+    status: done
+    comment: README documents unit system and scan interval in Setup section
+  docs-installation-parameters:
+    status: done
+    comment: README documents email, password, unit system, and scan interval parameters
+  entity-unavailable:
+    status: done
+    comment: available property returns False when coordinator update fails or native_value is None
+  integration-owner:
+    status: done
+    comment: "manifest.json codeowners set to barnaby-the-bot-scrivener"
+  log-when-unavailable:
+    status: todo
+    comment: Coordinator logs on errors but doesn't track state transitions (available→unavailable→available). Low effort fix.
+  parallel-updates:
+    status: todo
+    comment: Not explicitly set. Single coordinator instance is inherently serial. Should add PARALLEL_UPDATES = 1 for clarity.
+  reauthentication-flow:
+    status: exempt
+    comment: No OAuth/token expiration — credential changes handled via options flow
+  test-coverage:
+    status: todo
+    comment: 50 tests present (const, sensor, api, config_flow, coordinator). Need to measure coverage % and fill gaps.
+
+  # === GOLD ===
+  devices:
+    status: done
+    comment: DeviceInfo with manufacturer/model/MAC per scale, per-user device grouping
+  diagnostics:
+    status: todo
+    comment: No diagnostics platform yet. Would enable download of debug data from HA UI.
+  discovery-update-info:
+    status: exempt
+    comment: Cloud polling — no network discovery
+  discovery:
+    status: exempt
+    comment: Cloud API, not a local device
+  docs-data-update:
+    status: done
+    comment: README explains polling interval and cloud dependency
+  docs-examples:
+    status: todo
+    comment: Could add automation examples (weight trend alerts, etc.)
+  docs-known-limitations:
+    status: done
+    comment: README troubleshooting covers cloud dependency, polling delays, rate limits
+  docs-supported-devices:
+    status: todo
+    comment: Could list tested Renpho scale models (ES-26M confirmed working)
+  docs-supported-functions:
+    status: done
+    comment: Sensors table in README lists all 16 metrics with units
+  docs-troubleshooting:
+    status: done
+    comment: README has comprehensive troubleshooting section
+  docs-use-cases:
+    status: todo
+    comment: Could describe weight tracking, body comp dashboards, etc.
+  dynamic-devices:
+    status: todo
+    comment: New scales discovered on reload, but not dynamically mid-session. Needs investigation.
+  entity-category:
+    status: exempt
+    comment: All entities are diagnostic sensors — no config/diagnostic category needed
+  entity-device-class:
+    status: done
+    comment: weight and mass-derived entities set SensorDeviceClass.WEIGHT
+  entity-disabled-by-default:
+    status: todo
+    comment: 16 metrics * N users * M scales can be noisy. Should consider disabling less-common entities by default.
+  entity-translations:
+    status: done
+    comment: strings.json + translations/en.json present
+  exception-translations:
+    status: todo
+    comment: Error messages are hardcoded English strings, not translation keys
+  icon-translations:
+    status: exempt
+    comment: Icons are set programmatically via MDI constants
+  reconfiguration-flow:
+    status: done
+    comment: OptionsFlow supports changing unit system and scan interval
+  repair-issues:
+    status: todo
+    comment: No repair flows for auth failures, stale data, etc.
+  stale-devices:
+    status: todo
+    comment: Scales removed from account leave orphaned devices in HA
+
+  # === PLATINUM ===
+  async-dependency:
+    status: todo
+    comment: renpho-api is synchronous. Would need async rewrite or replacement.
+  inject-websession:
+    status: todo
+    comment: renpho-api manages its own HTTP session. Would need refactor.
+  strict-typing:
+    status: todo
+    comment: Uses from __future__ import annotations and type hints throughout, but not mypy strict mode verified.
