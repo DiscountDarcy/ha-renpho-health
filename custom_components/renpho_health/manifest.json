@@ -5,7 +5,6 @@
   "config_flow": true,
   "dependencies": [],
   "documentation": "https://github.com/DiscountDarcy/ha-renpho-health",
-  "homeassistant": "2024.6.0",
   "integration_type": "hub",
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/DiscountDarcy/ha-renpho-health/issues",
