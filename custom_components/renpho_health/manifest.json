@@ -1,0 +1,13 @@
+{
+  "domain": "renpho_health",
+  "name": "Renpho Health",
+  "codeowners": ["@barnaby-the-bot-scrivener"],
+  "config_flow": true,
+  "dependencies": [],
+  "documentation": "https://github.com/DiscountDarcy/ha-renpho-health",
+  "integration_type": "hub",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/DiscountDarcy/ha-renpho-health/issues",
+  "requirements": ["renpho-api>=0.1.0"],
+  "version": "0.1.0"
+}
