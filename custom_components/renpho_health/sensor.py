@@ -197,14 +197,8 @@ class RenphoHealthSensor(CoordinatorEntity[RenphoHealthCoordinator], SensorEntit
 
         self._attr_icon = icon
 
-        # Unit of measurement — adjust for Imperial vs Metric
-        display_unit = metric_unit
-        if coordinator.unit_system == UNIT_IMPERIAL and metric_key in WEIGHT_KEYS:
-            display_unit = "lb"
-        if display_unit and display_unit in UNIT_MAP:
-            self._attr_native_unit_of_measurement = UNIT_MAP.get(display_unit, display_unit)
-        else:
-            self._attr_native_unit_of_measurement = display_unit
+        # Store the base metric unit — dynamic property below handles Imperial conversion
+        self._base_metric_unit = metric_unit
 
         # Device class
         if device_class_str:
@@ -271,6 +265,14 @@ class RenphoHealthSensor(CoordinatorEntity[RenphoHealthCoordinator], SensorEntit
                     pass
             return val
         return None
+
+    @property
+    def native_unit_of_measurement(self) -> str | None:
+        """Return the unit — dynamically checks Imperial/Metric setting."""
+        unit = self._base_metric_unit
+        if self.coordinator.unit_system == UNIT_IMPERIAL and self._metric_key in WEIGHT_KEYS:
+            unit = "lb"
+        return UNIT_MAP.get(unit, unit) if unit else None
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
