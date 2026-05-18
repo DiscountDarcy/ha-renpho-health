@@ -6,6 +6,7 @@ and exposes it as sensor entities.
 
 from __future__ import annotations
 
+from datetime import timedelta
 import logging
 
 from homeassistant.config_entries import ConfigEntry
@@ -14,7 +15,13 @@ from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryAuthFailed, ConfigEntryNotReady
 
 from .api import AuthError
-from .const import DOMAIN, CONF_UNIT_SYSTEM, DEFAULT_SCAN_INTERVAL_MINUTES, DEFAULT_UNIT_SYSTEM
+from .const import (
+    DOMAIN,
+    CONF_UNIT_SYSTEM,
+    DEFAULT_SCAN_INTERVAL_MINUTES,
+    DEFAULT_UNIT_SYSTEM,
+    MIN_SCAN_INTERVAL_MINUTES,
+)
 from .coordinator import RenphoHealthCoordinator
 
 _LOGGER = logging.getLogger(__name__)
@@ -73,5 +80,22 @@ async def async_reload_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
 
 
 async def async_update_options(hass: HomeAssistant, entry: ConfigEntry) -> None:
-    """Handle options update (e.g., scan interval changed)."""
-    await hass.config_entries.async_reload(entry.entry_id)
+    """Handle options update — update coordinator unit and trigger refresh."""
+    coordinator: RenphoHealthCoordinator | None = hass.data.get(DOMAIN, {}).get(entry.entry_id)
+    if coordinator is not None:
+        new_unit = entry.options.get(
+            CONF_UNIT_SYSTEM,
+            entry.data.get(CONF_UNIT_SYSTEM, DEFAULT_UNIT_SYSTEM),
+        )
+        new_interval = entry.options.get(
+            CONF_SCAN_INTERVAL,
+            entry.data.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL_MINUTES),
+        )
+        if coordinator.unit_system != new_unit:
+            coordinator.unit_system = new_unit
+            # Force sensor values to recalculate immediately
+            coordinator.async_update_listeners()
+        # Update interval — reload to recreate coordinator with new timing
+        coordinator.update_interval = timedelta(minutes=max(new_interval, MIN_SCAN_INTERVAL_MINUTES))
+    else:
+        await hass.config_entries.async_reload(entry.entry_id)
