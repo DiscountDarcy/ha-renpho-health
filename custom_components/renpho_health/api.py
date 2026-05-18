@@ -30,8 +30,10 @@ class ConnectionError_(RenphoHealthAPIError):
     """Network or connection error."""
 
 
-async def validate_credentials(email: str, password: str) -> dict[str, Any]:
+def validate_credentials(email: str, password: str) -> dict[str, Any]:
     """Test credentials by logging in and returning user info.
+
+    This is a synchronous function — call via hass.async_add_executor_job.
 
     Raises:
         AuthError: If credentials are invalid.
@@ -54,8 +56,10 @@ async def validate_credentials(email: str, password: str) -> dict[str, Any]:
         raise RenphoHealthAPIError(f"API error during login: {exc}") from exc
 
 
-async def fetch_all_data(email: str, password: str) -> dict[str, Any]:
+def fetch_all_data(email: str, password: str) -> dict[str, Any]:
     """Fetch all measurements from all scales on the account.
+
+    This is a synchronous function — call via hass.async_add_executor_job.
 
     Returns:
         {
