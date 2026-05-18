@@ -186,12 +186,13 @@ class RenphoHealthSensor(CoordinatorEntity[RenphoHealthCoordinator], SensorEntit
         safe_user = _safe_slug(user_name) if user_name else ""
 
         # Unique ID includes user to prevent collisions
+        # v2 suffix forces fresh entities (old ones had cached "kg" unit)
         if user_id:
-            self._attr_unique_id = f"{table_name}_{user_id}_{metric_key}"
+            self._attr_unique_id = f"v2_{table_name}_{user_id}_{metric_key}"
             self.entity_id = f"sensor.renpho_{safe_scale}_{safe_user}_{safe_key}"
             self._attr_name = f"Renpho {scale_name} {user_name} {metric_name}"
         else:
-            self._attr_unique_id = f"{table_name}_{metric_key}"
+            self._attr_unique_id = f"v2_{table_name}_{metric_key}"
             self.entity_id = f"sensor.renpho_{safe_scale}_{safe_key}"
             self._attr_name = f"Renpho {scale_name} {metric_name}"
 
