@@ -7,3 +7,9 @@ venv/
 dist/
 build/
 .DS_Store
+.pytest_cache/
+*.egg
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml

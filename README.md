@@ -1,5 +1,7 @@
 # Renpho Health — Home Assistant Integration
 
+![icon](https://raw.githubusercontent.com/DiscountDarcy/ha-renpho-health/main/brand/icon.png)
+
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/hacs/integration)
 
 Home Assistant custom component that fetches body composition data from the **Renpho Health** cloud API and exposes it as sensor entities.
