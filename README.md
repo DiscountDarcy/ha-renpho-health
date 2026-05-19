@@ -8,6 +8,8 @@ Home Assistant custom component that fetches body composition data from the **Re
 
 > **Note:** This targets the **new Renpho Health app** (2024+). The old `renpho.qnclouds.com` API integrations no longer work with the Health app — this component uses the new `cloud.renpho.com` encrypted API.
 
+> **Disclaimer:** This integration was written by a Hermes-backed AI agent supervised by [DiscountDarcy](https://github.com/DiscountDarcy). This (small) project is an exercise in compliance with project guidelines. We welcome constructive feedback. Thank you!
+
 ## Features
 
 - 🔐 **AES-encrypted API** — handles the Health app's custom encryption automatically
