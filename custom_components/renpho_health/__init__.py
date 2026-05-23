@@ -28,6 +28,35 @@ _LOGGER = logging.getLogger(__name__)
 PLATFORMS: list[Platform] = [Platform.SENSOR]
 
 
+async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> bool:
+    """Migrate a config entry to a newer version.
+
+    Called by HA when the config entry's stored version differs from the
+    config flow class VERSION. Standalone function required in HA 2026.x+.
+    """
+    _LOGGER.debug(
+        "Migrating Renpho Health config entry from version %s",
+        config_entry.version,
+    )
+
+    if config_entry.version == 1:
+        # v1 → v2: Added unit_system option
+        new_data = {**config_entry.data}
+        if CONF_UNIT_SYSTEM not in new_data:
+            new_data[CONF_UNIT_SYSTEM] = DEFAULT_UNIT_SYSTEM
+        hass.config_entries.async_update_entry(
+            config_entry,
+            data=new_data,
+            version=2,
+        )
+        _LOGGER.info(
+            "Migrated Renpho Health config entry to version 2 (added unit_system=%s)",
+            DEFAULT_UNIT_SYSTEM,
+        )
+
+    return True
+
+
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Renpho Health from a config entry."""
     email = entry.data[CONF_EMAIL]
