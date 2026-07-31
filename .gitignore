@@ -13,3 +13,6 @@ htmlcov/
 .coverage
 .coverage.*
 coverage.xml
+
+# Release artifacts — built by hand, uploaded as release assets only
+renpho_health.zip
