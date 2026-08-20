@@ -2,7 +2,7 @@
     "domain": "renpho_health",
     "name": "Renpho Health",
     "codeowners": [
-        "@barnaby-the-bot-scrivener"
+        "@DiscountDarcy"
     ],
     "config_flow": true,
     "dependencies": [],
@@ -13,5 +13,5 @@
     "requirements": [
         "renpho-api>=0.1.0"
     ],
-    "version": "0.4.5"
+    "version": "0.4.6"
 }
